@@ -13,7 +13,6 @@ import {
 import NavBar from "./NavBar";
 import AuthContext from "../context/AuthProvider";
 import {AxiosContext} from "../context/AxiosProvider";
-import axios from "../api/axios";
 
 const GET_USER_INFO = 'details'
 const UPDATE_USER_DETAILS = 'update'
@@ -82,7 +81,7 @@ const Profile = () => {
                     <MDBCol md="6">
                         <MDBCard>
                             <MDBCardBody>
-                                <MDBCardTitle className="font-weight-bold">Profil użytkownika</MDBCardTitle>
+                                <MDBCardTitle className="font-weight-bold">User Profile</MDBCardTitle>
                                 <MDBCardText>
                                     <MDBInput
                                         type="email"
@@ -94,7 +93,7 @@ const Profile = () => {
                                     />
                                     <MDBInput
                                         type="password"
-                                        label="Stare hasło"
+                                        label="old password"
                                         value={oldPassword}
                                         onChange={handleOldPasswordChange}
                                         className="mb-3"
@@ -102,7 +101,7 @@ const Profile = () => {
                                     />
                                     <MDBInput
                                         type="password"
-                                        label="Nowe hasło"
+                                        label="new password"
                                         value={newPassword}
                                         onChange={handleNewPasswordChange}
                                         className="mb-3"
@@ -110,7 +109,7 @@ const Profile = () => {
                                     />
                                     <MDBInput
                                         type="password"
-                                        label="Potwierdź nowe hasło"
+                                        label="confirm new password"
                                         value={confirmPassword}
                                         onChange={handleConfirmPasswordChange}
                                         className="mb-3"
@@ -118,7 +117,7 @@ const Profile = () => {
                                     />
                                     {error && <div style={{color: 'danger', marginBottom: '20px'}}>{error}</div>}
                                 </MDBCardText>
-                                <MDBBtn onClick={handleSave}>Zapisz</MDBBtn>
+                                <MDBBtn onClick={handleSave}>save</MDBBtn>
                             </MDBCardBody>
                         </MDBCard>
                     </MDBCol>
