@@ -19,6 +19,9 @@ import {
     MDBCol, MDBRow
 } from 'mdb-react-ui-kit';
 import Sidebar from "./SideBar";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 const GET_ALL_ITEMS = '/image/all';
@@ -27,6 +30,8 @@ const GET_MATCHED_ITEMS = 'image/matched'
 const LIKE_ITEM = 'item/like'
 const GET_LIKED_ITEMS = 'image/like'
 const GET_SPEC_MATCHED_ITEMS = 'image/match'
+const DELETE_MATCH = 'item/match'
+const GET_USER_INFO = 'item/user'
 
 function ItemList() {
     const axios = useContext(AxiosContext);
@@ -48,6 +53,9 @@ function ItemList() {
 
     const [isMatchVisible, setIsMatchVisible] = useState(false);
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const [dialogContent, setDialogContent] = useState("user info");
 
     const [titleMessage, setTitleMessage] = useState('Posts');
 
@@ -108,12 +116,15 @@ function ItemList() {
     }
 
     const handleLike = (id) => {
-        console.log("asd")
         axios.publicAxios.get(`${LIKE_ITEM}/${selectedItemId}/${id}`, {
             headers: {'Authorization': authContext.getAccessToken()}
         }).then(response => {
-            setIsOpen(true)
-            setIsMatch(response.data)
+            if(response.data){
+                toast.success("YOU SCORED MATCH!")
+            }else {
+                toast.success("like has been saved")
+            }
+            handleSearch()
         });
     }
 
@@ -174,16 +185,28 @@ function ItemList() {
 
 
     function handleDeleteMatch(id, name) {
-
+        const confirmed = window.confirm(`do you want to delete ${name} ?`);
+        if(confirmed){
+            axios.publicAxios.delete(`${DELETE_MATCH}/${selectedItemId}/${id}`, {
+                headers: {'Authorization': authContext.getAccessToken()}
+            }).then(() => {
+                handleGetMatches()
+            });
+        }
     }
 
-    function handleInfo(id, name) {
-
+    function handleInfo(id) {
+        axios.publicAxios.get(`${GET_USER_INFO}/${id}`, {
+            headers: {'Authorization': authContext.getAccessToken()}
+        }).then((response) => {
+            toast.success(`username: ${response.data.username}  email: ${response.data.email}`)
+        });
     }
 
     return (
         <>
             <NavBar/>
+            <ToastContainer position="bottom-center" limit='2000'/>
             <MDBContainer fluid>
                 <MDBRow>
                     <MDBCol md="1">
@@ -230,11 +253,12 @@ function ItemList() {
                                         <div className="col-md-6 d-flex justify-content-center" key={item.id}>
                                             <MDBCard
                                                 style={{
-                                                    maxWidth: '300px',
+                                                    maxHeight: '400px',
                                                     margin: '20px',
                                                     border: '1px solid #ccc',
-                                                    minWidth: '80%'
-                                                }}
+                                                    minWidth: '80%',
+                                                    objectFit: 'cover'
+                                            }}
                                             >
                                                 <MDBCardImage
                                                     src={`data:image/jpeg;base64,${item.image}`}
@@ -286,7 +310,6 @@ function ItemList() {
                                                         </MDBCol>
                                                     </MDBRow> )
                                                 }
-
                                             </MDBCard>
                                         </div>
                                     ))}

@@ -1,14 +1,41 @@
-import React, { useState } from 'react';
-import { MDBContainer, MDBRow, MDBCol, MDBCard, MDBCardBody, MDBCardTitle, MDBCardText, MDBInput, MDBBtn } from 'mdb-react-ui-kit';
+import React, {useContext, useEffect, useState} from 'react';
+import {
+    MDBContainer,
+    MDBRow,
+    MDBCol,
+    MDBCard,
+    MDBCardBody,
+    MDBCardTitle,
+    MDBCardText,
+    MDBInput,
+    MDBBtn
+} from 'mdb-react-ui-kit';
 import NavBar from "./NavBar";
+import AuthContext from "../context/AuthProvider";
+import {AxiosContext} from "../context/AxiosProvider";
+import axios from "../api/axios";
 
+const GET_USER_INFO = 'details'
+const UPDATE_USER_DETAILS = 'update'
 
 const Profile = () => {
+
+    const axios = useContext(AxiosContext);
+    const authContext = useContext(AuthContext);
+
     const [email, setEmail] = useState('user@example.com');
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        axios.publicAxios.get(GET_USER_INFO, {
+            headers: {'Authorization': authContext.getAccessToken()}
+        }).then(response => {
+            setEmail(response.data.email)
+        });
+    }, [axios, authContext]);
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
@@ -28,14 +55,24 @@ const Profile = () => {
 
     const handleSave = () => {
         if (newPassword !== confirmPassword) {
-            setError('Hasła nie są takie same');
+            setError('Passwords are not the same');
         } else {
-            setError('');
-            // Wysłanie zmienionych danych na serwer lub wykonanie innych akcji
-            console.log('Zapisano zmiany: Email:', email, 'Stare hasło:', oldPassword, 'Nowe hasło:', newPassword);
+            axios.publicAxios.post(UPDATE_USER_DETAILS, JSON.stringify({
+                email: email,
+                oldPassword: oldPassword,
+                newPassword: newPassword
+            }), {
+                headers: {
+                    'Authorization': authContext.getAccessToken(),
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                setError('changes has been saved')
+            }).catch(() => {
+                setError('Invalid password');
+            })
         }
     };
-
 
     return (
         <>
